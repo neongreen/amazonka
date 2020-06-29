@@ -268,3 +268,4 @@ normaliseHeaders = Tag
     . sortBy (compare `on` fst)
     . filter ((/= "authorization") . fst)
     . filter ((/= "content-length") . fst)
+    . filter ((/= "transfer-encoding") . fst)
