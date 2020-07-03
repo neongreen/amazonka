@@ -82,6 +82,7 @@ presignWithHeaders :: (MonadIO m, AWSRequest a)
             -> a                    -- ^ Request to presign.
             -> m ClientRequest
 presignWithHeaders f g a r ts ex x =
-    withAuth a $ \ae ->
-        return $! sgRequest $
-            rqPresign ex (request x & rqHeaders %~ f & rqService %~ g) ae r ts
+    withAuth a $ \ae -> do
+        let signed = rqPresign ex (request x & rqHeaders %~ f & rqService %~ g) ae r ts
+        logTrace $ sgMeta signed
+        return $! sgRequest signed
