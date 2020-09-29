@@ -272,4 +272,3 @@ normaliseHeaders = Tag
     . nubBy  ((==)    `on` fst)
     . sortBy (compare `on` fst)
     . filter ((/= "authorization") . fst)
-    . filter ((/= "content-length") . fst)
