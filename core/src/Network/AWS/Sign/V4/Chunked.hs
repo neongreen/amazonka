@@ -35,7 +35,7 @@ import Network.AWS.Data.Crypto
 import Network.AWS.Data.Headers
 import Network.AWS.Data.Sensitive  (_Sensitive)
 import Network.AWS.Data.Time
-import Network.AWS.Lens            ((<>~), (^.), (%~))
+import Network.AWS.Lens            ((<>~), (^.))
 import Network.AWS.Sign.V4.Base    hiding (algorithm)
 import Network.AWS.Types
 import Network.HTTP.Types.Header
@@ -52,13 +52,10 @@ chunked c rq a r ts = signRequest meta (toRequestBody body) auth
   where
     (meta, auth) = base (Tag digest) (prepare rq) a r ts
 
-    -- Some S3 implementations seem to have problems with the
-    -- Content-Length header, so we omit it.
-    prepare = addHeaders . dropContentLength
-    dropContentLength = rqHeaders %~ filter ((/= "content-length") . fst)
-    addHeaders = rqHeaders <>~
+    prepare = rqHeaders <>~
         [ (hContentEncoding,         "aws-chunked")
         , (hAMZDecodedContentLength, toBS (_chunkedLength c))
+        , (hContentLength,           toBS (metadataLength   c))
         ]
 
     body = Chunked (c `fuseChunks` sign (metaSignature meta))
